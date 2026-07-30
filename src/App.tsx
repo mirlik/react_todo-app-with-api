@@ -137,7 +137,7 @@ export const App: React.FC = () => {
   const handleUpdate = (updatedTodo: Todo) => {
     setLoadingIds(currentIds => [...currentIds, updatedTodo.id]);
 
-    updateTodo(updatedTodo)
+    return updateTodo(updatedTodo)
       .then(todoFromServer => {
         setTodos(currentTodos =>
           currentTodos.map(item =>
@@ -145,8 +145,9 @@ export const App: React.FC = () => {
           ),
         );
       })
-      .catch(() => {
+      .catch(error => {
         setErrorMessage(ErrorMessages.Update);
+        throw error;
       })
       .finally(() => {
         setLoadingIds(currentIds =>
@@ -179,12 +180,14 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {/* this button should have `active` class only if all todos are completed */}
-          <button
-            type="button"
-            className={`todoapp__toggle-all ${areAllCompleted ? 'active' : ''}`}
-            data-cy="ToggleAllButton"
-            onClick={() => handleAllCompleted()}
-          />
+          {hasTodos && (
+            <button
+              type="button"
+              className={`todoapp__toggle-all ${areAllCompleted ? 'active' : ''}`}
+              data-cy="ToggleAllButton"
+              onClick={() => handleAllCompleted()}
+            />
+          )}
 
           {/* Add a todo on form submit */}
           <form onSubmit={handleSubmit}>
