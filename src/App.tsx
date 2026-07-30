@@ -27,6 +27,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [delTodos, setDelTodos] = useState<Array<number>>([]);
   const [loadingIds, setLoadingIds] = useState<Array<number>>([]);
+  const areAllCompleted = todos.every(todo => todo.completed);
 
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
@@ -154,6 +155,19 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleAllCompleted = () => {
+    const newStatus = !areAllCompleted;
+    const todosToUpdate = todos.filter(todo => todo.completed !== newStatus);
+
+    Promise.allSettled(
+      todosToUpdate.map(todo =>
+        handleUpdate({ ...todo, completed: newStatus }),
+      ),
+    );
+
+    titleField.current?.focus();
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -167,8 +181,9 @@ export const App: React.FC = () => {
           {/* this button should have `active` class only if all todos are completed */}
           <button
             type="button"
-            className="todoapp__toggle-all active"
+            className={`todoapp__toggle-all ${areAllCompleted ? 'active' : ''}`}
             data-cy="ToggleAllButton"
+            onClick={() => handleAllCompleted()}
           />
 
           {/* Add a todo on form submit */}
